@@ -15,6 +15,12 @@ _12to14Percent = 0.0
 _14to16Percent = 0.0
 _16to18Percent = 0.0
 
+portfolioTill6Months = 0.0
+portfolioTill12Months = 0.0
+portfolioTill18Months = 0.0
+portfolioTill24Months = 0.0
+portfolioTill24MonthsPlus = 0.0
+
 dataList = []
 
 
@@ -164,49 +170,79 @@ def calculatePortfolioRange():
 
 calculatePortfolioRange()
 
+def calculatePortfolioTerm():
+    global portfolioTill6Months, portfolioTill12Months, portfolioTill18Months, portfolioTill24Months, portfolioTill24MonthsPlus, totalOutstandingPrincipal
+    
+    totalData = len(dataList)
+    if totalData == 0:
+        print('No data to calculate percentages.')
+        return
+    
+    till6MonthsAmount = 0.0
+    till12MonthsAmount = 0.0
+    till18MonthsAmount = 0.0
+    till24MonthsAmount = 0.0
+    till24MonthsPlusAmount = 0.0
+
+    for data in dataList:
+        if data.remainingTerm >= 0.0 and data.remainingTerm <6.0: 
+            till6MonthsAmount += data.outstandingAmount
+        elif data.remainingTerm >= 6.0 and data.remainingTerm <12.0:
+            till12MonthsAmount += data.outstandingAmount
+        elif data.remainingTerm >= 12.0 and data.remainingTerm <18.0:
+            till18MonthsAmount += data.outstandingAmount
+        elif data.remainingTerm >= 18.0 and data.remainingTerm <24.0:
+            till24MonthsAmount += data.outstandingAmount
+        elif data.remainingTerm >= 24.0:
+            till24MonthsPlusAmount += data.outstandingAmount
+
+    portfolioTill6Months = (till6MonthsAmount / totalOutstandingPrincipal) * 100
+    portfolioTill12Months = ((till12MonthsAmount + till6MonthsAmount) / totalOutstandingPrincipal) * 100
+    portfolioTill18Months = ((till18MonthsAmount + till12MonthsAmount + till6MonthsAmount) / totalOutstandingPrincipal) * 100
+    portfolioTill24Months = ((till24MonthsAmount + till18MonthsAmount + till12MonthsAmount + till6MonthsAmount) / totalOutstandingPrincipal) * 100
+    portfolioTill24MonthsPlus = ((till24MonthsPlusAmount + till24MonthsAmount + till18MonthsAmount + till12MonthsAmount + till6MonthsAmount) / totalOutstandingPrincipal) * 100
+
+calculatePortfolioTerm()
+
 def write_file():
     global veryRiskyPercent, riskyPercent, kindaRiskyPercent, safePercent, totalOutstandingPrincipal
     global _6to8Percent, _8to10Percent, _10to12Percent, _12to14Percent, _14to16Percent, _16to18Percent
+    global portfolioTill6Months, portfolioTill12Months, portfolioTill18Months, portfolioTill24Months, portfolioTill24MonthsPlus
     datetimeNow = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     fileName = 'Output__' + datetimeNow + '.txt'
     with open(fileName, 'w') as file:
         file.write(f'Total Outstanding Principal: \n')
         file.write(f'{totalOutstandingPrincipal} \n')
         file.write(f'\n')
-        file.write(f'Very Risky: \n')
-        file.write(f'Risky: \n')
-        file.write(f'Kinda Risky: \n')
-        file.write(f'Safe: \n')
+        file.write(f'{str(veryRiskyPercent.__round__(2)).replace(".", ",")} :::::Very Risky: \n')
+        file.write(f'{str(riskyPercent.__round__(2)).replace(".", ",")} :::::Risky: \n')
+        file.write(f'{str(kindaRiskyPercent.__round__(2)).replace(".", ",")} :::::Kinda Risky: \n')
+        file.write(f'{str(safePercent.__round__(2)).replace(".", ",")} :::::Safe: \n')
         file.write(f'----------------------------\n')
-        veryRiskyPercent = str(veryRiskyPercent.__round__(2)).replace('.', ',')
-        riskyPercent = str(riskyPercent.__round__(2)).replace('.', ',')
-        kindaRiskyPercent = str(kindaRiskyPercent.__round__(2)).replace('.', ',')
-        safePercent = str(safePercent.__round__(2)).replace('.', ',')
-        file.write(f'{veryRiskyPercent}\n')
-        file.write(f'{riskyPercent}\n')
-        file.write(f'{kindaRiskyPercent}\n')
-        file.write(f'{safePercent}\n')
 
         file.write(f'\n')
-        file.write(f'<8%: \n')
-        file.write(f'8-10%: \n')
-        file.write(f'10-12%: \n')
-        file.write(f'12-14%: \n')
-        file.write(f'14-16%: \n')
-        file.write(f'16-18%: \n')
+        file.write(f'{str(_6to8Percent.__round__(2)).replace(".", ",")} :::::<8%\n')
+        file.write(f'{str(_8to10Percent.__round__(2)).replace(".", ",")} :::::8-10%\n')
+        file.write(f'{str(_10to12Percent.__round__(2)).replace(".", ",")} :::::10-12%\n')
+        file.write(f'{str(_12to14Percent.__round__(2)).replace(".", ",")} :::::12-14%\n')
+        file.write(f'{str(_14to16Percent.__round__(2)).replace(".", ",")} :::::14-16%\n')
+        file.write(f'{str(_16to18Percent.__round__(2)).replace(".", ",")} :::::16-18%\n')
+        file.write(f'<<<<<<<<<<<>>>>>>>>>>>>\n')
+        file.write(f'{str(_6to8Percent.__round__(2)).replace(".", ",")}\n')
+        file.write(f'{str(_8to10Percent.__round__(2)).replace(".", ",")}\n')
+        file.write(f'{str(_10to12Percent.__round__(2)).replace(".", ",")}\n')
+        file.write(f'{str(_12to14Percent.__round__(2)).replace(".", ",")}\n')
+        file.write(f'{str(_14to16Percent.__round__(2)).replace(".", ",")}\n')
+        file.write(f'{str(_16to18Percent.__round__(2)).replace(".", ",")}\n')
         file.write(f'----------------------------\n')
-        _6to8Percent = str(_6to8Percent.__round__(2)).replace('.', ',')
-        _8to10Percent = str(_8to10Percent.__round__(2)).replace('.', ',')
-        _10to12Percent = str(_10to12Percent.__round__(2)).replace('.', ',')
-        _12to14Percent = str(_12to14Percent.__round__(2)).replace('.', ',')
-        _14to16Percent = str(_14to16Percent.__round__(2)).replace('.', ',')
-        _16to18Percent = str(_16to18Percent.__round__(2)).replace('.', ',')
-        file.write(f'{_6to8Percent}\n')
-        file.write(f'{_8to10Percent}\n')
-        file.write(f'{_10to12Percent}\n')
-        file.write(f'{_12to14Percent}\n')
-        file.write(f'{_14to16Percent}\n')
-        file.write(f'{_16to18Percent}\n')
+
+        file.write(f'\n')
+        file.write(f'{str(portfolioTill6Months.__round__(2)).replace(".", ",")} :::::Till 6 Months: \n')
+        file.write(f'{str(portfolioTill12Months.__round__(2)).replace(".", ",")} :::::Till 12 Months: \n')
+        file.write(f'{str(portfolioTill18Months.__round__(2)).replace(".", ",")} :::::Till 18 Months: \n')
+        file.write(f'{str(portfolioTill24Months.__round__(2)).replace(".", ",")} :::::Till 24 Months: \n')
+        file.write(f'{str(portfolioTill24MonthsPlus.__round__(2)).replace(".", ",")} :::::Till 24 Months Plus: \n')
+        file.write(f'----------------------------\n')
 
     print(f'Output written to {fileName}')
 
